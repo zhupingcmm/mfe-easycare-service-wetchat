@@ -1,0 +1,93 @@
+<!--allowance.wxml-->
+<navigation-bar title="津贴计算" back="{{true}}" color="black" background="#FFF"></navigation-bar>
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <view class="form-section">
+      <view class="form-title">收入信息</view>
+      
+      <view class="form-item">
+        <text class="label">平均工资（元/月）</text>
+        <input 
+          class="input" 
+          type="digit" 
+          placeholder="请输入平均工资" 
+          value="{{avgSalary}}"
+          bindinput="onAvgSalaryInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">社保缴费基数（元）</text>
+        <input 
+          class="input" 
+          type="digit" 
+          placeholder="选填，默认为平均工资" 
+          value="{{socialSecurityBase}}"
+          bindinput="onSocialSecurityBaseInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">连续缴费月数</text>
+        <input 
+          class="input" 
+          type="number" 
+          placeholder="请输入缴费月数" 
+          value="{{monthsWorked}}"
+          bindinput="onMonthsWorkedInput"
+        />
+      </view>
+
+      <view class="tips">
+        <text class="tips-icon">💡</text>
+        <text class="tips-text">连续缴费满12个月可享受更高医疗费用补贴</text>
+      </view>
+    </view>
+
+    <view class="button-group">
+      <button class="btn btn-primary" bindtap="calculate">计算津贴</button>
+      <button class="btn btn-secondary" bindtap="reset">重置</button>
+    </view>
+
+    <view class="result-section" wx:if="{{showResult && result}}">
+      <view class="result-title">计算结果</view>
+      
+      <view class="result-card">
+        <view class="result-main">
+          <text class="result-label">预计总津贴</text>
+          <text class="result-value">¥{{result.totalAmount}}</text>
+        </view>
+        
+        <view class="result-breakdown">
+          <view class="breakdown-item">
+            <view class="breakdown-icon">💰</view>
+            <view class="breakdown-content">
+              <text class="breakdown-label">生育津贴</text>
+              <text class="breakdown-value">¥{{result.maternityAllowance}}</text>
+            </view>
+          </view>
+          
+          <view class="breakdown-item">
+            <view class="breakdown-icon">🏥</view>
+            <view class="breakdown-content">
+              <text class="breakdown-label">医疗费用</text>
+              <text class="breakdown-value">¥{{result.medicalAllowance}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="result-details">
+          <text class="details-title">计算说明：</text>
+          <view class="details-list">
+            <text class="details-item" wx:for="{{result.details}}" wx:key="index">• {{item}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="notice">
+        <text class="notice-title">温馨提示</text>
+        <text class="notice-text">以上金额为预估值，实际发放金额以社保部门审核为准。</text>
+      </view>
+    </view>
+  </view>
+</scroll-view>

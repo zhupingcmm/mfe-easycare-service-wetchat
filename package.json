@@ -1,0 +1,12 @@
+{
+  "name": "mfe-easycare-service-wetchat",
+  "version": "1.0.0",
+  "description": "WeChat Mini Program with TypeScript",
+  "scripts": {
+    "tsc": "tsc",
+    "compile": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

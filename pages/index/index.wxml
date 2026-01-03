@@ -1,0 +1,170 @@
+<!--index.wxml-->
+<navigation-bar title="生育服务" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <view class="tab-buttons">
+      <view 
+        class="tab-button {{activeTab === 'maternity' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="maternity"
+      >
+        <text class="tab-icon">📅</text>
+        <text class="tab-text">产假计算</text>
+      </view>
+      <view 
+        class="tab-button {{activeTab === 'allowance' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="allowance"
+      >
+        <text class="tab-icon">💰</text>
+        <text class="tab-text">津贴计算</text>
+      </view>
+    </view>
+
+    <!-- 产假计算表单 -->
+    <view class="content-area" wx:if="{{activeTab === 'maternity'}}">
+      <view class="form-section">
+        <view class="form-title">基本信息</view>
+
+        <view class="form-item">
+          <text class="label"><text class="required">*</text>城市</text>
+          <picker 
+            mode="selector" 
+            range="{{cityNames}}" 
+            value="{{cityIndex}}" 
+            bindchange="onCityChange"
+            disabled="{{loadingCities}}"
+          >
+            <view class="picker">
+              {{loadingCities ? '加载中...' : (cityName || '请选择城市')}}
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-item">
+          <text class="label"><text class="required">*</text>预产期</text>
+          <picker mode="date" value="{{expectedDeliveryDate}}" bindchange="onExpectedDeliveryDateChange">
+            <view class="picker">
+              {{expectedDeliveryDate || '请选择预产期'}}
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-item">
+          <text class="label"><text class="required">*</text>婴儿数量</text>
+          <picker 
+            mode="selector" 
+            range="{{babyCountOptions}}" 
+            value="{{babyCountIndex}}" 
+            bindchange="onNumberOfBabiesChange"
+          >
+            <view class="picker">
+              {{numberOfBabies}}个
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="form-section">
+        <view class="form-title">假期类型</view>
+
+        <view class="form-item-switch">
+          <text class="label">是否有晚育假/生育假/奖励假</text>
+          <switch checked="{{hasExtendedDays}}" bindchange="onHasExtendedDaysChange" />
+        </view>
+
+        <view class="form-item-switch">
+          <text class="label">是否难产</text>
+          <switch checked="{{isDifficultBirth}}" bindchange="onIsDifficultBirthChange" />
+        </view>
+
+        <view class="form-item-switch">
+          <text class="label">是否流产</text>
+          <switch checked="{{isMiscarriage}}" bindchange="onIsMiscarriageChange" />
+        </view>
+      </view>
+
+      <view class="button-group">
+        <button class="btn btn-primary" bindtap="calculateMaternity">计算产假</button>
+        <button class="btn btn-secondary" bindtap="resetMaternity">重置</button>
+      </view>
+
+      <view class="result-section" wx:if="{{showMaternityResult && maternityResult}}">
+        <view class="result-title">计算结果</view>
+        <view class="result-card">
+          <view class="result-item">
+            <text class="result-label">总天数</text>
+            <text class="result-value">{{maternityResult.totalDays}}天</text>
+          </view>
+          <view class="result-item">
+            <text class="result-label">开始日期</text>
+            <text class="result-value">{{maternityResult.startDate}}</text>
+          </view>
+          <view class="result-item">
+            <text class="result-label">结束日期</text>
+            <text class="result-value">{{maternityResult.endDate}}</text>
+          </view>
+          <view class="result-item">
+            <text class="result-label">返岗日期</text>
+            <text class="result-value">{{maternityResult.returnToWorkDate}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 津贴计算表单 -->
+    <view class="content-area" wx:if="{{activeTab === 'allowance'}}">
+      <view class="form-section">
+        <view class="form-title">收入信息</view>
+        
+        <view class="form-item">
+          <text class="label">平均工资（元/月）</text>
+          <input 
+            class="input" 
+            type="digit" 
+            placeholder="请输入平均工资" 
+            value="{{avgSalary}}"
+            bindinput="onAvgSalaryInput"
+          />
+        </view>
+
+        <view class="form-item">
+          <text class="label">社保缴费基数（元）</text>
+          <input 
+            class="input" 
+            type="digit" 
+            placeholder="选填，默认为平均工资" 
+            value="{{socialSecurityBase}}"
+            bindinput="onSocialSecurityBaseInput"
+          />
+        </view>
+
+        <view class="form-item">
+          <text class="label">连续缴费月数</text>
+          <input 
+            class="input" 
+            type="number" 
+            placeholder="请输入缴费月数" 
+            value="{{monthsWorked}}"
+            bindinput="onMonthsWorkedInput"
+          />
+        </view>
+      </view>
+
+      <view class="button-group">
+        <button class="btn btn-primary" bindtap="calculateAllowance">计算津贴</button>
+        <button class="btn btn-secondary" bindtap="resetAllowance">重置</button>
+      </view>
+
+      <view class="result-section" wx:if="{{showAllowanceResult && allowanceResult}}">
+        <view class="result-title">计算结果</view>
+        <view class="result-card">
+          <view class="result-item">
+            <text class="result-label">预计总津贴</text>
+            <text class="result-value highlight">¥{{allowanceResult.totalAmount}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>

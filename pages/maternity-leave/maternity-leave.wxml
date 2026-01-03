@@ -1,0 +1,190 @@
+<!--maternity-leave.wxml-->
+<navigation-bar title="产假计算" back="{{true}}" color="black" background="#FFF"></navigation-bar>
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <view class="form-section">
+      <view class="form-title">基本信息</view>
+
+      <view class="form-item">
+        <text class="label">城市</text>
+        <picker 
+          mode="selector" 
+          range="{{cityNames}}" 
+          value="{{cityIndex}}" 
+          bindchange="onCityChange"
+          disabled="{{loadingCities}}"
+        >
+          <view class="picker">
+            {{loadingCities ? '加载中...' : (cityName || '请选择城市')}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="label">预产期</text>
+        <picker mode="date" value="{{expectedDeliveryDate}}" bindchange="onExpectedDeliveryDateChange">
+          <view class="picker">
+            {{expectedDeliveryDate || '请选择预产期'}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="label">婴儿数量</text>
+        <picker 
+          mode="selector" 
+          range="{{babyCountOptions}}" 
+          value="{{babyCountIndex}}" 
+          bindchange="onNumberOfBabiesChange"
+        >
+          <view class="picker">
+            {{numberOfBabies}}个
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="form-title">假期类型</view>
+
+      <view class="form-item-switch">
+        <text class="label">是否有晚育假/生育假/奖励假</text>
+        <switch checked="{{hasExtendedDays}}" bindchange="onHasExtendedDaysChange" />
+      </view>
+
+      <view class="form-item-switch">
+        <text class="label">是否难产</text>
+        <switch checked="{{isDifficultBirth}}" bindchange="onIsDifficultBirthChange" />
+      </view>
+
+      <view class="form-item-switch">
+        <text class="label">是否流产</text>
+        <switch checked="{{isMiscarriage}}" bindchange="onIsMiscarriageChange" />
+      </view>
+    </view>
+
+    <view class="form-section" wx:if="{{cityCode === 'CD'}}">
+      <view class="form-title">成都特殊选项</view>
+      
+      <view class="form-item-switch">
+        <text class="label">是否母乳喂养（额外一个月）</text>
+        <switch checked="{{isBreastFeeding}}" bindchange="onIsBreastFeedingChange" />
+      </view>
+    </view>
+
+    <view class="form-section" wx:if="{{cityCode === 'SX'}}">
+      <view class="form-title">绍兴特殊选项</view>
+      
+      <view class="form-item-switch">
+        <text class="label">是否生育一孩</text>
+        <switch checked="{{isFirstTimeBirth}}" bindchange="onIsFirstTimeBirthChange" />
+      </view>
+    </view>
+
+    <view class="form-section" wx:if="{{cityCode === 'GZ' && isDifficultBirth}}">
+      <view class="form-title">广州难产假期</view>
+      
+      <view class="form-item">
+        <text class="label">难产假期天数（15或30天）</text>
+        <input 
+          class="input" 
+          type="number" 
+          placeholder="请输入15或30" 
+          value="{{additionalDystociaDays}}"
+          bindinput="onAdditionalDystociaDaysInput"
+        />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="form-title">其他选项（可选）</view>
+      
+      <view class="form-item">
+        <text class="label">医嘱天数</text>
+        <input 
+          class="input" 
+          type="number" 
+          placeholder="请输入医嘱天数" 
+          value="{{doctorRecommendDays}}"
+          bindinput="onDoctorRecommendDaysInput"
+        />
+      </view>
+    </view>
+
+    <view class="button-group">
+      <button class="btn btn-primary" bindtap="calculate">计算产假</button>
+      <button class="btn btn-secondary" bindtap="reset">重置</button>
+    </view>
+
+    <view class="result-section" wx:if="{{showResult && result}}">
+      <view class="result-title">计算结果</view>
+      
+      <view class="result-card">
+        <view class="result-main">
+          <text class="result-label">总产假天数</text>
+          <text class="result-value">{{result.totalDays}}天</text>
+        </view>
+        
+        <view class="result-detail">
+          <view class="detail-item">
+            <text class="detail-label">基础产假</text>
+            <text class="detail-value">{{result.baseDays}}天</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">难产假</text>
+            <text class="detail-value">{{result.dystociaDays}}天</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">多胞胎假</text>
+            <text class="detail-value">{{result.multiBabyDays}}天</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">晚育/奖励假</text>
+            <text class="detail-value">{{result.extendedDays}}天</text>
+          </view>
+        </view>
+
+        <view class="result-date">
+          <view class="date-item">
+            <text class="date-label">开始日期</text>
+            <text class="date-value">{{result.startDate}}</text>
+          </view>
+          <view class="date-item">
+            <text class="date-label">结束日期</text>
+            <text class="date-value">{{result.endDate}}</text>
+          </view>
+          <view class="date-item">
+            <text class="date-label">返岗日期</text>
+            <text class="date-value">{{result.returnToWorkDate}}</text>
+          </view>
+        </view>
+
+        <view class="result-info">
+          <view class="info-row">
+            <text class="info-label">城市：</text>
+            <text class="info-value">{{result.cityName}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">津贴天数：</text>
+            <text class="info-value">{{result.totalAllowanceDays}}天</text>
+          </view>
+          <view class="info-row" wx:if="{{result.pubHolidaysCount > 0}}">
+            <text class="info-label">节假日顺延：</text>
+            <text class="info-value">{{result.pubHolidaysCount}}天</text>
+          </view>
+        </view>
+
+        <view class="result-timeline" wx:if="{{result.timeScopeList && result.timeScopeList.length > 0}}">
+          <text class="timeline-title">假期时间段：</text>
+          <view class="timeline-list">
+            <view class="timeline-item" wx:for="{{result.timeScopeList}}" wx:key="index">
+              <text class="timeline-type">{{item.type === 'BASE' ? '基础产假' : item.type === 'EXTENDED' ? '晚育/奖励假' : item.type === 'DYSTOCIA' ? '难产假' : item.type === 'MULTI_BABY' ? '多胞胎假' : '其他'}}</text>
+              <text class="timeline-days">{{item.days}}天</text>
+              <text class="timeline-date">{{item.startDate}} ~ {{item.endDate}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
