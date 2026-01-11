@@ -48,9 +48,9 @@ export interface MaternityLeaveResponse {
   timeScopeList: TimeScope[];
 }
 
-export interface MiscarriageLeaveDetail {
+export interface MiscarriageRuleDO {
   cityCode: string;
-  code: string;
+  index: number;
   days: number;
   needOverrideDays: boolean;
   description: string;
@@ -78,9 +78,9 @@ export interface ApiResponse<T> {
 }
 
 export interface AllowanceParams {
-  avgSalary: number;
-  monthsWorked: number;
-  socialSecurityBase: number;
+  govTotalAmount: number;
+  avgSalaryBefore12Months: number;
+  baseSalary: number;
 }
 
 export interface UserProfile {
@@ -169,11 +169,9 @@ export class API {
     return this.request('/api/maternity-leave/calculate', params) as Promise<MaternityLeaveResponse>;
   }
 
-  static getMiscarriageRules(cityCode?: string): Promise<MiscarriageLeaveDetail[]> {
-    const url = cityCode 
-      ? `/api/maternity-leave/ref-data/miscarriage-rules?cityCode=${cityCode}`
-      : '/api/maternity-leave/ref-data/miscarriage-rules';
-    return this.request(url, {}, 'GET') as Promise<MiscarriageLeaveDetail[]>;
+  static getMiscarriageRules(cityCode: string): Promise<MiscarriageRuleDO[]> {
+    const url = `/api/maternity-leave/ref-data/miscarriage-rules?cityCode=${cityCode}`;
+    return this.request(url, {}, 'GET') as Promise<MiscarriageRuleDO[]>;
   }
 
   static getCities(): Promise<CityDO[]> {

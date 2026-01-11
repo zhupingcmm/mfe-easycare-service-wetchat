@@ -2,45 +2,53 @@ import { API } from '../../utils/api';
 
 Page({
   data: {
-    avgSalary: '',
-    monthsWorked: '',
-    socialSecurityBase: '',
+    govTotalAmount: '',
+    avgSalaryBefore12Months: '',
+    baseSalary: '',
     result: null,
     showResult: false
   },
 
-  onAvgSalaryInput(e: any) {
+  onGovTotalAmountInput(e: any) {
     this.setData({
-      avgSalary: e.detail.value
+      govTotalAmount: e.detail.value
     });
   },
 
-  onMonthsWorkedInput(e: any) {
+  onAvgSalaryBefore12MonthsInput(e: any) {
     this.setData({
-      monthsWorked: e.detail.value
+      avgSalaryBefore12Months: e.detail.value
     });
   },
 
-  onSocialSecurityBaseInput(e: any) {
+  onBaseSalaryInput(e: any) {
     this.setData({
-      socialSecurityBase: e.detail.value
+      baseSalary: e.detail.value
     });
   },
 
   async calculate() {
-    const { avgSalary, monthsWorked, socialSecurityBase } = this.data;
+    const { govTotalAmount, avgSalaryBefore12Months, baseSalary } = this.data;
 
-    if (!avgSalary) {
+    if (!govTotalAmount) {
       wx.showToast({
-        title: '请输入平均工资',
+        title: '请输入政府发放金额',
         icon: 'none'
       });
       return;
     }
 
-    if (!monthsWorked) {
+    if (!avgSalaryBefore12Months) {
       wx.showToast({
-        title: '请输入缴费月数',
+        title: '请输入产前12个月月平均工资',
+        icon: 'none'
+      });
+      return;
+    }
+
+    if (!baseSalary) {
+      wx.showToast({
+        title: '请输入基本工资',
         icon: 'none'
       });
       return;
@@ -52,9 +60,9 @@ Page({
 
     try {
       const result = await API.calculateAllowance({
-        avgSalary: parseFloat(avgSalary),
-        monthsWorked: parseInt(monthsWorked),
-        socialSecurityBase: socialSecurityBase ? parseFloat(socialSecurityBase) : 0
+        govTotalAmount: parseFloat(govTotalAmount),
+        avgSalaryBefore12Months: parseFloat(avgSalaryBefore12Months),
+        baseSalary: parseFloat(baseSalary)
       });
 
       this.setData({
@@ -74,9 +82,9 @@ Page({
 
   reset() {
     this.setData({
-      avgSalary: '',
-      monthsWorked: '',
-      socialSecurityBase: '',
+      govTotalAmount: '',
+      avgSalaryBefore12Months: '',
+      baseSalary: '',
       result: null,
       showResult: false
     });

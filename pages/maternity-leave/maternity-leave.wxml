@@ -6,6 +6,7 @@
       <view class="form-title">基本信息</view>
 
       <view class="form-item">
+        <text class="field-icon">🏙️</text>
         <text class="label">城市</text>
         <picker 
           mode="selector" 
@@ -21,45 +22,72 @@
       </view>
 
       <view class="form-item">
-        <text class="label">预产期</text>
-        <picker mode="date" value="{{expectedDeliveryDate}}" bindchange="onExpectedDeliveryDateChange">
+        <text class="field-icon">📅</text>
+        <text class="label">产假开始时间</text>
+        <picker mode="date" value="{{maternityStartDate}}" bindchange="onMaternityStartDateChange">
           <view class="picker">
-            {{expectedDeliveryDate || '请选择预产期'}}
-          </view>
-        </picker>
-      </view>
-
-      <view class="form-item">
-        <text class="label">婴儿数量</text>
-        <picker 
-          mode="selector" 
-          range="{{babyCountOptions}}" 
-          value="{{babyCountIndex}}" 
-          bindchange="onNumberOfBabiesChange"
-        >
-          <view class="picker">
-            {{numberOfBabies}}个
+            {{maternityStartDate || '请选择产假开始时间'}}
           </view>
         </picker>
       </view>
     </view>
 
     <view class="form-section">
-      <view class="form-title">假期类型</view>
+      <view class="form-title">生育方式</view>
+
+      <radio-group bindchange="onDeliveryTypeChange">
+        <label class="radio-item">
+          <radio value="normal" checked="{{deliveryType === 'normal'}}" />
+          <text class="radio-label">顺产</text>
+        </label>
+        <label class="radio-item">
+          <radio value="difficult" checked="{{deliveryType === 'difficult'}}" />
+          <text class="radio-label">难产</text>
+        </label>
+        <label class="radio-item">
+          <radio value="miscarriage" checked="{{deliveryType === 'miscarriage'}}" />
+          <text class="radio-label">流产</text>
+        </label>
+      </radio-group>
+
+      <view class="form-item" wx:if="{{deliveryType === 'miscarriage'}}">
+        <text class="field-icon">📋</text>
+        <text class="label">流产规则</text>
+        <picker 
+          mode="selector" 
+          range="{{miscarriageRuleDescriptions}}" 
+          value="{{miscarriageRuleIndex}}" 
+          bindchange="onMiscarriageRuleChange"
+          disabled="{{loadingMiscarriageRules}}"
+        >
+          <view class="picker">
+            {{loadingMiscarriageRules ? '加载中...' : (miscarriageRuleDescriptions[miscarriageRuleIndex] || '请选择流产规则')}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item" wx:if="{{deliveryType !== 'miscarriage'}}">
+        <text class="field-icon">👶</text>
+        <text class="label">婴儿数量</text>
+        <picker 
+          mode="selector" 
+          range="{{multipleOptions}}" 
+          value="{{multipleIndex}}" 
+          bindchange="onMultipleChange"
+        >
+          <view class="picker">
+            {{multipleOptions[multipleIndex]}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="form-title">其他假期</view>
 
       <view class="form-item-switch">
         <text class="label">是否有晚育假/生育假/奖励假</text>
         <switch checked="{{hasExtendedDays}}" bindchange="onHasExtendedDaysChange" />
-      </view>
-
-      <view class="form-item-switch">
-        <text class="label">是否难产</text>
-        <switch checked="{{isDifficultBirth}}" bindchange="onIsDifficultBirthChange" />
-      </view>
-
-      <view class="form-item-switch">
-        <text class="label">是否流产</text>
-        <switch checked="{{isMiscarriage}}" bindchange="onIsMiscarriageChange" />
       </view>
     </view>
 

@@ -3,7 +3,7 @@ page {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f5f5;
+  background: #8b1538;
 }
 
 .scrollarea {
@@ -100,10 +100,18 @@ page {
 
 .form-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: 25rpx 0;
   border-bottom: 1rpx solid #f5f5f5;
+  min-height: 80rpx;
+}
+
+.field-icon {
+  font-size: 36rpx;
+  margin-right: 15rpx;
+  flex-shrink: 0;
+  margin-top: 4rpx;
 }
 
 .form-item:last-child {
@@ -117,6 +125,9 @@ page {
   min-width: 200rpx;
   max-width: 400rpx;
   margin-right: 20rpx;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.5;
 }
 
 .required {
@@ -158,6 +169,30 @@ page {
 
 .form-item-switch switch {
   transform: scale(0.8);
+}
+
+/* Radio group styles */
+radio-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  padding: 25rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.radio-item:last-child {
+  border-bottom: none;
+}
+
+.radio-label {
+  margin-left: 20rpx;
+  font-size: 28rpx;
+  color: #333;
 }
 
 /* Button group */

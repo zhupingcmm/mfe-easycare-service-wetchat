@@ -1,19 +1,24 @@
-import { API, MaternityLeaveResponse, CityDO } from '../../utils/api';
+import { API, MaternityLeaveResponse, CityDO, MiscarriageRuleDO } from '../../utils/api';
 
 Page({
   data: {
     cityCode: '',
     cityName: '',
-    expectedDeliveryDate: '',
+    maternityStartDate: '',
     numberOfBabies: 1,
+    deliveryType: 'normal',
     hasExtendedDays: false,
-    isDifficultBirth: false,
     isMultipleBirth: false,
-    isMiscarriage: false,
     isBreastFeeding: false,
     isFirstTimeBirth: false,
     additionalDystociaDays: 0,
     doctorRecommendDays: 0,
+    miscarriageRules: [] as MiscarriageRuleDO[],
+    miscarriageRuleDescriptions: [] as string[],
+    miscarriageRuleIndex: 0,
+    loadingMiscarriageRules: false,
+    multipleOptions: ['单胎', '双胞胎', '三胞胎', '四胞胎', '五胞胎'],
+    multipleIndex: 0,
     
     cities: [] as CityDO[],
     cityNames: [] as string[],
@@ -31,16 +36,20 @@ Page({
     const index = e.detail.value;
     const cities = this.data.cities;
     if (cities && cities[index]) {
+      const cityCode = cities[index].code;
       this.setData({
         cityIndex: index,
-        cityCode: cities[index].code,
+        cityCode: cityCode,
         cityName: cities[index].chineseName
       });
+      
+      // 加载该城市的流产规则
+      this.loadMiscarriageRules(cityCode);
     }
   },
 
-  onExpectedDeliveryDateChange(e: any) {
-    this.setData({ expectedDeliveryDate: e.detail.value });
+  onMaternityStartDateChange(e: any) {
+    this.setData({ maternityStartDate: e.detail.value });
   },
 
   onNumberOfBabiesChange(e: any) {
@@ -49,20 +58,34 @@ Page({
     this.setData({
       babyCountIndex: index,
       numberOfBabies: value,
+      isMultipleBirth: value > 1,
+      multipleIndex: value - 1 // 同步更新几胞胎选择
+    });
+  },
+
+  onDeliveryTypeChange(e: any) {
+    this.setData({ 
+      deliveryType: e.detail.value,
+      miscarriageRuleIndex: 0
+    });
+  },
+
+  onMiscarriageRuleChange(e: any) {
+    this.setData({ miscarriageRuleIndex: e.detail.value });
+  },
+
+  onMultipleChange(e: any) {
+    const index = e.detail.value;
+    const value = index + 1; // 单胎=1, 双胞胎=2, etc.
+    this.setData({
+      multipleIndex: index,
+      numberOfBabies: value,
       isMultipleBirth: value > 1
     });
   },
 
   onHasExtendedDaysChange(e: any) {
     this.setData({ hasExtendedDays: e.detail.value });
-  },
-
-  onIsDifficultBirthChange(e: any) {
-    this.setData({ isDifficultBirth: e.detail.value });
-  },
-
-  onIsMiscarriageChange(e: any) {
-    this.setData({ isMiscarriage: e.detail.value });
   },
 
   onIsBreastFeedingChange(e: any) {
@@ -82,15 +105,20 @@ Page({
   },
 
   async calculate() {
-    const { cityCode, expectedDeliveryDate, numberOfBabies, hasExtendedDays, isDifficultBirth, isMultipleBirth, isMiscarriage, isBreastFeeding, isFirstTimeBirth, additionalDystociaDays, doctorRecommendDays } = this.data;
+    const { cityCode, maternityStartDate, numberOfBabies, deliveryType, hasExtendedDays, isMultipleBirth, isBreastFeeding, isFirstTimeBirth, additionalDystociaDays, doctorRecommendDays, miscarriageRuleIndex } = this.data;
 
     if (!cityCode) {
       wx.showToast({ title: '请选择城市', icon: 'none' });
       return;
     }
 
-    if (!expectedDeliveryDate) {
-      wx.showToast({ title: '请选择预产期', icon: 'none' });
+    if (!maternityStartDate) {
+      wx.showToast({ title: '请选择产假开始时间', icon: 'none' });
+      return;
+    }
+
+    if (deliveryType === 'miscarriage' && miscarriageRuleIndex === undefined) {
+      wx.showToast({ title: '请选择流产规则', icon: 'none' });
       return;
     }
 
@@ -102,9 +130,12 @@ Page({
     wx.showLoading({ title: '计算中...' });
 
     try {
+      const isDifficultBirth = deliveryType === 'difficult';
+      const isMiscarriage = deliveryType === 'miscarriage';
+      
       const result = await API.calculateMaternityLeave({
         cityCode,
-        expectedDeliveryDate,
+        expectedDeliveryDate: maternityStartDate,
         numberOfBabies,
         hasExtendedDays,
         isDifficultBirth,
@@ -134,17 +165,18 @@ Page({
   reset() {
     const cities = this.data.cities;
     const resetData: any = {
-      expectedDeliveryDate: '',
+      maternityStartDate: '',
       numberOfBabies: 1,
       babyCountIndex: 0,
+      deliveryType: 'normal',
       hasExtendedDays: false,
-      isDifficultBirth: false,
       isMultipleBirth: false,
-      isMiscarriage: false,
       isBreastFeeding: false,
       isFirstTimeBirth: false,
       additionalDystociaDays: 0,
       doctorRecommendDays: 0,
+      miscarriageRuleIndex: 0,
+      multipleIndex: 0,
       cityIndex: 0,
       result: null,
       showResult: false
@@ -163,7 +195,33 @@ Page({
   },
 
   async onLoad() {
-    await this.loadCities();
+    this.loadCities();
+  },
+
+  async loadMiscarriageRules(cityCode: string) {
+    if (!cityCode) return;
+    
+    this.setData({ loadingMiscarriageRules: true });
+    
+    try {
+      const rules = await API.getMiscarriageRules(cityCode);
+      const descriptions = rules.map(rule => rule.description);
+      
+      this.setData({
+        miscarriageRules: rules,
+        miscarriageRuleDescriptions: descriptions,
+        miscarriageRuleIndex: 0,
+        loadingMiscarriageRules: false
+      });
+    } catch (error) {
+      console.error('加载流产规则失败:', error);
+      this.setData({ loadingMiscarriageRules: false });
+      
+      wx.showToast({
+        title: '加载流产规则失败',
+        icon: 'none'
+      });
+    }
   },
 
   async loadCities() {
@@ -188,11 +246,15 @@ Page({
       
       // 设置默认选中第一个城市
       if (enabledCities.length > 0) {
+        const firstCity = enabledCities[0];
         this.setData({
-          cityCode: enabledCities[0].code,
-          cityName: enabledCities[0].chineseName,
+          cityCode: firstCity.code,
+          cityName: firstCity.chineseName,
           cityIndex: 0
         });
+        
+        // 加载默认城市的流产规则
+        this.loadMiscarriageRules(firstCity.code);
       }
       
       wx.hideLoading();

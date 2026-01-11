@@ -3,44 +3,42 @@
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
     <view class="form-section">
-      <view class="form-title">收入信息</view>
+      <view class="form-title">津贴信息</view>
       
       <view class="form-item">
-        <text class="label">平均工资（元/月）</text>
+        <text class="field-icon">💰</text>
+        <text class="label">政府发放金额（元）</text>
+        <input 
+          class="input" 
+          type="digit" 
+          placeholder="请输入金额" 
+          value="{{govTotalAmount}}"
+          bindinput="onGovTotalAmountInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="field-icon">💵</text>
+        <text class="label">产前12个月平均工资（元）</text>
         <input 
           class="input" 
           type="digit" 
           placeholder="请输入平均工资" 
-          value="{{avgSalary}}"
-          bindinput="onAvgSalaryInput"
+          value="{{avgSalaryBefore12Months}}"
+          bindinput="onAvgSalaryBefore12MonthsInput"
         />
       </view>
 
       <view class="form-item">
-        <text class="label">社保缴费基数（元）</text>
+        <text class="field-icon">💳</text>
+        <text class="label">员工基本工资（元/月）</text>
         <input 
           class="input" 
           type="digit" 
-          placeholder="选填，默认为平均工资" 
-          value="{{socialSecurityBase}}"
-          bindinput="onSocialSecurityBaseInput"
+          placeholder="请输入基本工资" 
+          value="{{baseSalary}}"
+          bindinput="onBaseSalaryInput"
         />
-      </view>
-
-      <view class="form-item">
-        <text class="label">连续缴费月数</text>
-        <input 
-          class="input" 
-          type="number" 
-          placeholder="请输入缴费月数" 
-          value="{{monthsWorked}}"
-          bindinput="onMonthsWorkedInput"
-        />
-      </view>
-
-      <view class="tips">
-        <text class="tips-icon">💡</text>
-        <text class="tips-text">连续缴费满12个月可享受更高医疗费用补贴</text>
       </view>
     </view>
 
