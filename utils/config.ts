@@ -21,7 +21,7 @@ export const ENV_CONFIG: Record<Environment, EnvironmentConfig> = {
   },
   // 生产环境
   production: {
-    baseUrl: 'https://api.your-domain.com',
+    baseUrl: 'http://8.153.38.116:8080',
     timeout: 10000,
     enableLog: false
   }
